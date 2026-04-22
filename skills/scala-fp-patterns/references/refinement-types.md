@@ -1,136 +1,303 @@
-# Refinement Types Reference
+# Refinement Types with Iron (Scala 3)
 
-Complete reference for newtypes, refinement types, and compile-time validation.
+Complete reference for refined types, opaque type wrappers, and compile-time validation using Iron. Iron replaces the Scala 2 `refined` library with a Scala 3-native approach: `A :| C` syntax, type-class-driven constraints, and zero-cost opaque wrappers.
 
-## Custom Validation Predicates
+## Why Iron Over Refined
+
+The `eu.timepit.refined` library relies on Scala 2 macros and implicit conversions that don't port to Scala 3. Iron uses Scala 3's inline methods and the `Constraint` type class, giving you compile-time validation without macros. The `A :| C` syntax is a type alias — no wrapper boxing at runtime.
+
+## Custom Constraint Type Classes
+
+Every constraint is a `given` instance of `Constraint[A, C]` with two members: `test` (the predicate) and `message` (the error description).
 
 ```scala
-import eu.timepit.refined.api.Validate
+import io.github.iltotore.iron.*
 
-case class Email()
+// Basic custom constraint — validated at runtime only
+final class NotBlank
+object NotBlank:
+  given Constraint[String, NotBlank] with
+    def message: String = "String must not be blank"
+    def test(value: String): Boolean = value.nonEmpty
 
-implicit val emailValidate: Validate.Plain[String, Email] =
-  Validate.fromPartial(
-    s => Email(s),
-    s => s.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"),
-    Predicate("Must be a valid email address")
-  )
-
-type ValidEmail = String Refined Email
+type NonBlankString = String :| NotBlank
 ```
 
-## RefinedTypeOps
+For compile-time validation on literal values, mark `test` and `message` as `inline`:
 
 ```scala
-import eu.timepit.refined.api.RefinedTypeOps
+final class Uppercase
+object Uppercase:
+  inline def message: String = "Must be uppercase"
+  inline def test(value: String): Boolean = value == value.toUpperCase
 
-object Username {
-  type Username = String Refined NonEmpty
-  implicit class UsernameOps(val u: Username) extends AnyVal {
-    def value: String = u.value
-  }
-  def from(s: String): Either[String, Username] = refineV[NonEmpty](s)
-  def unsafeFrom(s: String): Username = refineV[NonEmpty](s) match {
-    case Right(v) => v
-    case Left(err) => throw new IllegalArgumentException(err)
-  }
-}
+type UpperString = String :| Uppercase
+
+val ok: UpperString = "HELLO"     // Compiles
+// val bad: UpperString = "Hello"  // Compile-time error: Must be uppercase
 ```
 
-## Higher-Kinded Refinements
+Parameterized constraints use type parameters on the constraint class:
 
 ```scala
-import eu.timepit.refined.collection._
+final class DivisibleBy[V]
+object DivisibleBy:
+  given Constraint[Int, DivisibleBy[3]] with
+    def message: String = "Number must be divisible by 3"
+    def test(value: Int): Boolean = value % 3 == 0
 
-type NonEmptyMap[K, V] = Map[K, V] Refined NonEmpty
-type NonEmptyList[T] = List[T] Refined NonEmpty
+type MultipleOfThree = Int :| DivisibleBy[3]
 ```
 
-## Newtype Ops
+Combine multiple custom constraints with `&`:
 
 ```scala
-import io.estatico.newtype.macros._
-import io.estatico.newtype.ops._
-
-@newtype case class Username(value: String)
-
-// Access underlying value
-val name = Username("alice")
-val raw: String = name.value
-
-// Implicit ops for domain methods
-implicit class UsernameOps(u: Username) {
-  def lowercase: Username = Username(u.value.toLowerCase)
-  def trimmed: Username = Username(u.value.trim)
-}
+type ValidUsername = String :| (NotBlank & Length[3, 20])
 ```
 
-## Smart Constructors
+## Compile-Time vs Runtime Validation
+
+Iron validates literals at compile time. Runtime values from external sources (user input, APIs, databases) require explicit refinement.
 
 ```scala
-@newtype case class UserId(value: Long)
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.constraint.numeric.*
 
-object UserId {
-  def from(s: String): Either[String, UserId] =
-    refineV[NonEmpty](s).map(u => UserId(u.value.toLong))
+type PositiveInt = Int :| Greater[0]
 
-  def unsafeFrom(s: String): UserId =
-    from(s).fold(err => throw new IllegalArgumentException(err), identity)
-}
+// Compile-time — literals checked by the compiler
+val a: PositiveInt = 42       // OK
+// val b: PositiveInt = -1    // Compile-time error
 
-@newtype case class Amount(value: BigDecimal)
+// Runtime — use refineEither for safe validation
+val input: Int = scala.util.Random.nextInt()
+val result: Either[String, PositiveInt] = input.refineEither[Greater[0]]
 
-object Amount {
-  def from(d: BigDecimal): Either[String, Amount] =
-    if (d >= 0) Right(Amount(d))
+// Runtime — use refineUnsafe when you're certain (throws IllegalArgumentException)
+val forced: PositiveInt = 5.refineUnsafe
+```
+
+Choose the right method for the context:
+
+| Method | Return Type | Use When |
+|--------|-------------|----------|
+| `refineEither[C]` | `Either[String, A :| C]` | External input, safe error handling |
+| `refineOption[C]` | `Option[A :| C]` | Simple presence check |
+| `refineUnsafe` | `A :| C` | You control the value, failure is a bug |
+| `refineNel[C]` | `EitherNel[String, A :| C]` | Accumulating errors with Cats |
+| `refineZIO[C]` | `ZIO[Any, String, A :| C]` | ZIO effect-based validation |
+
+## Constraint Composition
+
+Use operators to build complex constraints from primitives.
+
+### AND — Intersection (`&`)
+
+All constraints must hold. Use this for fields with multiple requirements:
+
+```scala
+import io.github.iltotore.iron.constraint.string.*
+import io.github.iltotore.iron.constraint.numeric.*
+
+type StrongPassword = String :| (Length[8, 100] & Contain["!"] & Contain["@"])
+type ValidAge = Int :| (Greater[0] & Less[150])
+```
+
+### OR — Union (`|`)
+
+At least one constraint must hold:
+
+```scala
+type NonZero = Double :| (Positive | Negative)
+```
+
+### Implication (`==>`)
+
+If the left constraint holds, the right must also hold. Use this for conditional rules:
+
+```scala
+type AdultAge = Int :| (Greater[18] ==> Less[120])
+```
+
+Combine all three operators for business rules:
+
+```scala
+type ValidDiscount = Double :| (
+  Greater[0.0] & Less[100.0] |
+  Equal[0.0]    // free is allowed
+)
+```
+
+## Opaque Type Wrappers (Newtype Pattern)
+
+Scala 3 `opaque type` gives you zero-cost type wrappers with no boxing. Use these to prevent mixing up domain types that share the same underlying representation.
+
+```scala
+opaque type UserId = Long
+object UserId:
+  def apply(value: Long): UserId = value
+  extension (self: UserId) def value: Long = self
+```
+
+Combine opaque types with Iron refinements to ensure the wrapped value is valid:
+
+```scala
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.constraint.numeric.*
+
+opaque type UserId = Long :| Greater[0L]
+object UserId:
+  // Smart constructor — safe
+  def from(value: Long): Either[String, UserId] =
+    value.refineEither[Greater[0L]].map(_.asInstanceOf[UserId])
+
+  // Smart constructor — unsafe, for trusted data
+  def unsafeFrom(value: Long): UserId =
+    value.refineUnsafe.asInstanceOf[UserId]
+
+  extension (self: UserId) def value: Long = self.asInstanceOf[Long :| Greater[0L]]
+```
+
+The opaque type erases at runtime — `UserId` is just `Long` with zero allocation overhead.
+
+## Smart Constructors Combining Opaque Types + Refinements
+
+Build domain types that are impossible to construct with invalid data:
+
+```scala
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.constraint.string.*
+import io.github.iltotore.iron.constraint.numeric.*
+
+opaque type Email = String :| Contain["@"]
+object Email:
+  def from(value: String): Either[String, Email] =
+    value.refineEither[Contain["@"]].map(_.asInstanceOf[Email])
+
+  def unsafeFrom(value: String): Email =
+    value.refineUnsafe.asInstanceOf[Email]
+
+  extension (self: Email) def value: String = self
+
+opaque type Amount = BigDecimal
+object Amount:
+  def from(value: BigDecimal): Either[String, Amount] =
+    if value >= 0 then Right(value)
     else Left("Amount must be non-negative")
-}
+
+  extension (self: Amount) def value: BigDecimal = self
 ```
 
-## Combining Newtypes with Refinements
+Use these in your domain model to make illegal states unrepresentable:
 
 ```scala
-@newtype case class Email private (value: String)
+case class Order(
+  id: UserId,
+  customerEmail: Email,
+  total: Amount
+)
 
-object Email {
-  type EmailR = String Refined MatchesRegex["^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"]
-
-  def from(s: String): Either[String, Email] =
-    refineV[MatchesRegex["^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"]](s)
-      .map(v => Email(v.value))
-}
+def createOrder(
+  rawId: Long,
+  rawEmail: String,
+  rawTotal: BigDecimal
+): Either[String, Order] =
+  for
+    id    <- UserId.from(rawId)
+    email <- Email.from(rawEmail)
+    total <- Amount.from(rawTotal)
+  yield Order(id, email, total)
 ```
 
-## Runtime vs Compile-time Validation
+## Cats Effect Integration
+
+Iron provides `iron-cats` for error accumulation with `EitherNel` and parallel validation:
 
 ```scala
-// Runtime validation — errors surface at runtime
-def validateAge(age: Int): Either[String, Int] =
-  if (age > 0) Right(age) else Left("Age must be positive")
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.cats.*          // brings refineNel
+import io.github.iltotore.iron.constraint.numeric.*
+import io.github.iltotore.iron.constraint.string.*
+import cats.data.EitherNel
+import cats.syntax.all.*
+import cats.effect.IO
 
-// Compile-time validation — errors caught during compilation
-type PositiveAge = Int Refined Greater[0]
+case class User(name: String :| Length[1, 100], age: Int :| Greater[0])
 
-val valid: PositiveAge = 25   // OK
-// val invalid: PositiveAge = -5  // COMPILATION ERROR
+def validateUser(name: String, age: Int): EitherNel[String, User] =
+  (
+    name.refineNel[Length[1, 100]],
+    age.refineNel[Greater[0]]
+  ).parMapN(User.apply)
+
+// Lift into IO
+def program(name: String, age: Int): IO[User] =
+  validateUser(name, age).fold(
+    errors => IO.raiseError(new IllegalArgumentException(errors.show)),
+    IO.pure
+  )
 ```
+
+`parMapN` collects all validation failures before returning, so users see every problem at once instead of fixing one field at a time.
+
+## JSON Serialization with Circe
+
+`iron-circe` provides automatic `Encoder`/`Decoder` instances for refined types. Decoding validates the constraint — invalid JSON produces a decoding failure:
+
+```scala
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.circe.*          // brings Encoder/Decoder instances
+import io.github.iltotore.iron.constraint.numeric.*
+import io.github.iltotore.iron.constraint.string.*
+import io.circe.Codec
+import io.circe.generic.semiauto.deriveCodec
+import io.circe.parser.decode
+import io.circe.syntax.EncoderOps
+
+case class Product(
+  id: Long :| Greater[0L],
+  name: String :| Length[1, 200],
+  price: Double :| Greater[0.0]
+) derives Codec
+
+// Encode — straightforward
+val product = Product(1L, "Widget", 9.99)
+val json = product.asJson  // {"id":1,"name":"Widget","price":9.99}
+
+// Decode — invalid values produce DecodingFailure
+val badJson = """{"id":-1,"name":"","price":-5.0}"""
+decode[Product](badJson)  // Left(DecodingFailure(...))
+```
+
+No manual codec writing — `derives Codec` picks up the Iron instances from the classpath.
 
 ## Common Imports
 
 ```scala
-// Newtypes
-import io.estatico.newtype.macros._
-import io.estatico.newtype.ops._
+// Core — always needed
+import io.github.iltotore.iron.*
 
-// Refined
-import eu.timepit.refined.api.Refined
-import eu.timepit.refined.api.RefinedTypeOps
-import eu.timepit.refined.auto._
-import eu.timepit.refined.collection._
-import eu.timepit.refined.numeric._
-import eu.timepit.refined.string._
-import eu.timepit.refined.boolean._
+// Built-in constraint categories
+import io.github.iltotore.iron.constraint.numeric.*
+import io.github.iltotore.iron.constraint.string.*
+import io.github.iltotore.iron.constraint.collection.*
 
-// Cats integration
-import eu.timepit.refined.cats._
+// Effect system integration
+import io.github.iltotore.iron.cats.*   // refineNel, Cats instances
+import io.github.iltotore.iron.zio.*   // refineZIO, ZIO instances
+
+// JSON integration
+import io.github.iltotore.iron.circe.* // Encoder/Decoder for refined types
+```
+
+## Dependencies
+
+```scala
+// Core
+libraryDependencies += "io.github.iltotore" %% "iron" % "3.2.+"
+
+// Optional integrations
+libraryDependencies += "io.github.iltotore" %% "iron-cats"  % "3.2.+"
+libraryDependencies += "io.github.iltotore" %% "iron-zio"   % "3.2.+"
+libraryDependencies += "io.github.iltotore" %% "iron-circe" % "3.2.+"
 ```
