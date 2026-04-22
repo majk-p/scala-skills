@@ -1,0 +1,14 @@
+# Temporary library learning directories (auto-created during skill execution)
+tmp-library-clone/
+
+# IDE specific files
+.idea/
+.vscode/
+*.iml
+
+# OS specific files
+.DS_Store
+Thumbs.db
+tmp-local/
+tmp/
+
