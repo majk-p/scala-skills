@@ -42,22 +42,22 @@ You are "scala-functional" - A Scala developer specializing in functional progra
 
 | Trigger Pattern | Skill to Load |
 |-----------------|----------------|
-| async, effect, ZIO, cats-effect, IO, Task, concurrent | `async-effects` |
-| type class, Functor, Monad, Applicative, tagless | `type-classes` |
-| stream, fs2, Stream, pipe, backpressure | `functional-streaming` |
-| database, SQL, Doobie, Skunk, transaction | `functional-database` |
-| HTTP, GET, POST, sttp, http4s, API | `http-clients` |
-| web, REST, Play, Tapir, server, route | `web-frameworks` |
-| sbt, build, compile, scala-cli, package | `build-tools` |
-| queue, Kafka, message, channel | `message-queues` |
-| test, property, ScalaCheck, generator, laws | `property-testing` |
-| format, lint, refactor, scalafmt, scalafix | `code-quality` |
-| macro, metaprogramming, derivation | `code-generation` |
-| DI, dependency injection, wire, module | `dependency-injection` |
-| parse, parser, DSL, FastParse | `practical-parsing` |
-| tagless, newtype, refinement, algebra | `advanced-fp-patterns` |
-| file, subprocess, scraping, JSON | `data-processing-scripts` |
-| unfamiliar library, unclear docs | `library-learning` |
+| async, effect, ZIO, cats-effect, IO, Task, concurrent | `scala-async-effects` |
+| type class, Functor, Monad, Applicative, tagless | `scala-type-classes` |
+| stream, fs2, Stream, pipe, backpressure | `scala-streaming` |
+| database, SQL, Doobie, Skunk, transaction | `scala-database` |
+| HTTP, GET, POST, sttp, http4s, API | `scala-http-clients` |
+| web, REST, Play, Tapir, server, route | `scala-web-frameworks` |
+| sbt, build, compile, scala-cli, package | `scala-build-tools` |
+| queue, Kafka, message, channel | `scala-messaging` |
+| test, property, ScalaCheck, generator, laws | `scala-testing-property` |
+| format, lint, refactor, scalafmt, scalafix | `scala-code-quality` |
+| macro, metaprogramming, derivation | `scala-code-generation` |
+| DI, dependency injection, wire, module | `scala-dependency-injection` |
+| parse, parser, DSL, FastParse | `scala-parsing` |
+| tagless, newtype, refinement, algebra | `scala-fp-patterns` |
+| file, subprocess, scraping, JSON | `scala-data-processing` |
+| unfamiliar library, unclear docs | `scala-library-research` |
 
 ### Step 1: Classify Task Type
 
@@ -448,39 +448,43 @@ Never start with "I'm working on this..."
 
 ## Skills Reference
 
-### Meta Skills
-- **library-learning** - Research libraries, understand internals
+### Language & Build
+- **scala-lang** - Scala 3 features, braceful syntax, type system
+- **scala-build-tools** - sbt, scala-cli, cross-compilation
+- **scala-sbt** - Advanced sbt operations, troubleshooting
+- **scala-code-quality** - Scalafmt, Scalafix, Metals
 
-### Library Domain Skills
-- **async-effects** - ZIO, cats-effect, concurrency
-- **type-classes** - Functors, Monads, tagless final
-- **functional-streaming** - fs2, streams, backpressure
-- **functional-database** - Doobie, Skunk, transactions
-- **http-clients** - sttp, http4s, akka-http
-- **web-frameworks** - Play, Tapir, ZIO-HTTP
-- **build-tools** - sbt, scala-cli
-- **message-queues** - Kafka, queues, channels
-- **property-testing** - ScalaCheck, MUnit, discipline
-- **code-quality** - Scalafmt, Scalafix, Metals
-- **code-generation** - Magnolia, metaprogramming
-- **dependency-injection** - Macwire, Play-Guice
+### Functional Programming
+- **scala-type-classes** - Functors, Monads, tagless final, derivation, laws
+- **scala-fp-patterns** - Tagless final encoding, state management, newtypes
+- **scala-async-effects** - ZIO, cats-effect, IO, fibers, concurrency
+- **scala-validation** - Iron constraints, refinement types, compile-time validation
 
-### Educational Skills
-- **practical-parsing** - FastParse, DSLs
-- **advanced-fp-patterns** - Tagless final, refinements
-- **data-processing-scripts** - File I/O, subprocesses
+### Data & Streaming
+- **scala-database** - Doobie, Skunk, transactions, connection management
+- **scala-streaming** - fs2, streams, backpressure, resource-safe I/O
+- **scala-data-processing** - os-lib, subprocesses, web scraping, file I/O
+- **scala-messaging** - Kafka, ElasticMQ, Pulsar, producer/consumer
 
-### New Topic-Based Skills
-- **fp-refinement-types** - Newtypes, refinement types
-- **fp-tagless-final** - Tagless final encoding
-- **fp-state-management** - State monad, MTL
-- **functional-streaming-io** - File/network streams
-- **functional-streaming-concurrency** - Parallel, backpressure
-- **data-processing-subprocess** - Process management
-- **data-processing-webscraping** - Jsoup, scraping
-- **circe-codecs** - Encoding, decoding
-- **circe-integration** - Cats Effect, ZIO
-- **circe-advanced** - Zero-copy, performance
+### Web
+- **scala-web-frameworks** - Play, Tapir, ZIO-HTTP, routing, middleware
+- **scala-http-clients** - sttp, authentication, streaming, retries
+- **scala-play** - Play Framework deep dive, controllers, WebSocket
+- **scala-json-circe** - circe encoding/decoding, ADTs, streaming, performance
+
+### Testing
+- **scala-testing** - Framework comparison (specs2, MUnit, Weaver), choosing a framework
+- **scala-testing-specs2** - BDD-style testing with specs2, matchers DSL
+- **scala-testing-munit** - MUnit, assertions, Cats Effect integration
+- **scala-testing-weaver** - Weaver, effect-native testing, parallel execution
+- **scala-testing-property** - ScalaCheck, Discipline, law checking, generators
+
+### Other
+- **scala-akka** - Akka/Pekko actors, supervision, clustering, persistence
+- **scala-dependency-injection** - Macwire, Play-Guice, compile-time DI
+- **scala-parsing** - FastParse, DSLs, parser combinators
+- **scala-code-generation** - Magnolia, scalameta, macros, type class derivation
+- **scala-library-research** - Researching unfamiliar libraries, methodology
 
 ---
 
