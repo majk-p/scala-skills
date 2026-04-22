@@ -372,4 +372,4 @@ Load these when you need exhaustive API details or patterns not shown above:
 
 - **references/tagless-final.md** — Capability trait derivation, context passing, generic interpreters, composite components, recursive capability traits
 - **references/state-management.md** — StateT deep dive, MTL transformers, Local, AtomicCell patterns, resource-safe state management
-- **references/refinement-types.md** — Custom validation predicates, RefinedTypeOps, higher-kinded refinements, newtype ops
+- **references/refinement-types.md** — Iron constraint type classes, opaque type newtypes, smart constructors, constraint composition, Cats Effect error accumulation, Circe serialization
