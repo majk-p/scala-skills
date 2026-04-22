@@ -341,6 +341,54 @@ libraryDependencies ++= Seq(
 )
 ```
 
+## Tools
+
+### `scripts/new-tapir-project.sh` — Scaffold a Tapir project via adopt-tapir API
+
+Generates a complete Tapir project by calling `https://adopt-tapir.softwaremill.com/api/v1/starter.zip`.
+
+**Three usage modes:**
+
+```bash
+# 1. Guided — agent or user runs without flags, answers prompts
+./scripts/new-tapir-project.sh
+
+# 2. Flag mode — all options specified
+./scripts/new-tapir-project.sh \
+  --name my-api --group com.example \
+  --stack IOStack --impl Http4s --json Circe \
+  --scala Scala3 --builder Sbt --docs --metrics
+
+# 3. Raw JSON — bypass validation, send arbitrary payload
+./scripts/new-tapir-project.sh --raw '{"projectName":"my-api",...}'
+```
+
+**Parameters** (as of tapir 1.x — values may change):
+
+| Flag | Values |
+|---|---|
+| `--stack` | `FutureStack` `IOStack` `ZIOStack` `OxStack` |
+| `--impl` | `Netty` `Http4s` `ZIOHttp` `VertX` `Pekko` (must be valid for chosen stack) |
+| `--json` | `No` `Circe` `UPickle` `Jsoniter` `ZIOJson` |
+| `--scala` | `Scala2` `Scala3` |
+| `--builder` | `Sbt` `ScalaCli` |
+| `--docs` | Include Swagger UI |
+| `--metrics` | Include Prometheus metrics |
+
+**Stack × Implementation matrix:**
+
+|  | Netty | Http4s | ZIOHttp | VertX | Pekko |
+|---|---|---|---|---|---|
+| **FutureStack** | ✅ | ❌ | ❌ | ✅ | ✅ |
+| **IOStack** | ✅ | ✅ | ❌ | ✅ | ❌ |
+| **ZIOStack** | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **OxStack** | ✅ | ❌ | ❌ | ❌ | ❌ |
+
+**Fallback when the API changes:** If flag mode fails (HTTP non-200), the adopt-tapir form fields or valid values have likely changed. In that case:
+1. Inspect the live form at https://adopt-tapir.softwaremill.com/ to discover current fields/values
+2. Or check the API source at https://github.com/softwaremill/adopt-tapir (see `StarterRequest.scala`)
+3. Re-run with `--raw` and a manually constructed JSON payload matching the updated schema
+
 ## Related Skills
 
 - **scala-play** — deep dive into Play Framework: DI, templates, WebSockets, caching, advanced configuration
