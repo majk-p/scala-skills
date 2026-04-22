@@ -395,23 +395,23 @@ basicRequest.post(uri"...").contentType("application/json").body("""{"key": "val
 ## Dependencies
 
 ```scala
-// Core STTP client
-libraryDependencies += "com.softwaremill.sttp.client4" %% "core" % "latest"
+// Core STTP client — check for latest version
+libraryDependencies += "com.softwaremill.sttp.client4" %% "core" % "4.0.+"
 
 // JSON with Circe
-libraryDependencies += "com.softwaremill.sttp.client4" %% "circe" % "latest"
+libraryDependencies += "com.softwaremill.sttp.client4" %% "circe" % "4.0.+"
 
 // JSON with uPickle
-libraryDependencies += "com.softwaremill.sttp.client4" %% "upickle" % "latest"
+libraryDependencies += "com.softwaremill.sttp.client4" %% "upickle" % "4.0.+"
 
 // Cats Effect / fs2 backend
-libraryDependencies += "com.softwaremill.sttp.client4" %% "httpclient-fs2" % "latest"
+libraryDependencies += "com.softwaremill.sttp.client4" %% "httpclient-fs2" % "4.0.+"
 
 // ZIO backend
-libraryDependencies += "com.softwaremill.sttp.client4" %% "httpclient-zio" % "latest"
+libraryDependencies += "com.softwaremill.sttp.client4" %% "httpclient-zio" % "4.0.+"
 
 // Armeria backend (high performance)
-libraryDependencies += "com.softwaremill.sttp.client4" %% "armeria" % "latest"
+libraryDependencies += "com.softwaremill.sttp.client4" %% "armeria" % "4.0.+"
 ```
 
 ## Related Skills

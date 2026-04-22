@@ -1,5 +1,5 @@
 ---
-name: scala-di
+name: scala-dependency-injection
 description: Use this skill when implementing dependency injection in Scala applications. This includes using macwire for compile-time, type-safe DI wiring, or play-guice for runtime DI with Guice. Trigger when the user mentions dependency injection, DI, wiring, modules, or needs to manage dependencies between components.
 ---
 

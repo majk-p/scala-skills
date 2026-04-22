@@ -22,7 +22,7 @@ val sum = 2 |+| 3                           // 5
 val combined = List(1, 2, 3).combineAll     // 6
 
 // Functor - mapping over structure
-val mapped = List(1, 2, 3).map(_ * 2)       // List(2, 3, 4)
+val mapped = List(1, 2, 3).map(_ * 2)       // List(2, 4, 6)
 
 // Applicative - applying functions in context
 val result = (Option(3), Option(4)).mapN(_ + _)  // Some(7)

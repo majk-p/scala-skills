@@ -235,23 +235,24 @@ req.as[User]     // decode request body
 ## Dependencies
 
 ```scala
+// check for latest version
 libraryDependencies ++= Seq(
-  "io.circe" %% "circe-core",
-  "io.circe" %% "circe-generic",
-  "io.circe" %% "circe-parser"
-).map(_ % "latest.version")  // check for current version
+  "io.circe" %% "circe-core"    % "0.14.+",
+  "io.circe" %% "circe-generic" % "0.14.+",
+  "io.circe" %% "circe-parser"  % "0.14.+"
+)
 
 // Optional — streaming
-"co.fs2" %% "fs2-core"  // fs2 integration
+libraryDependencies += "co.fs2" %% "fs2-core" % "3.12.+"
 
 // Optional — refined types
-"io.circe" %% "circe-refined"
+libraryDependencies += "io.circe" %% "circe-refined" % "0.14.+"
 
 // Optional — JSON Schema
-"io.circe" %% "circe-schema"
+libraryDependencies += "io.circe" %% "circe-schema" % "0.14.+"
 
 // Optional — generic-extras for custom discriminators/snake_case
-"io.circe" %% "circe-generic-extras"
+libraryDependencies += "io.circe" %% "circe-generic-extras" % "0.14.+"
 ```
 
 ## Related Skills

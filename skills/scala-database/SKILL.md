@@ -159,9 +159,10 @@ implicit val roleMeta: Meta[UserRole] =
 case class Address(street: String, city: String, country: String)
 
 implicit val addressMeta: Meta[Address] =
-  Meta[String].timap {
-    case s => Address(s.split(",").toList.head, s.split(",").toList(1), s.split(",").toList(2))
-  }
+  Meta[String].timap(
+    s => Address(s.split(",").toList.head, s.split(",").toList(1), s.split(",").toList(2)),
+    a => s"${a.street},${a.city},${a.country}"
+  )
 ```
 
 ## Error Handling

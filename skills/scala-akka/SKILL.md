@@ -256,15 +256,26 @@ object AkkaCatsIntegration {
 5. **Clean up resources** with `Behaviors.stopped` or `PostStop` signal handling
 6. **ActorSystem provides Materializer** — no need to create `ActorMaterializer` manually for streams
 
+## Migration to Apache Pekko
+
+Akka has transitioned to the Apache Foundation as **Pekko**. For new projects, prefer Apache Pekko — the API is nearly identical, just with different package names (`org.apache.pekko` instead of `akka`). Existing Akka 2.8.x projects can continue using Akka, but the latest features and fixes are in Pekko.
+
 ## Dependencies
 
 ```scala
-// check for latest version
-libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % "2.10.+"
-libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.10.+"
-libraryDependencies += "com.typesafe.akka" %% "akka-persistence-typed" % "2.10.+"
-libraryDependencies += "com.typesafe.akka" %% "akka-cluster-typed" % "2.10.+"
-libraryDependencies += "com.typesafe.akka" %% "akka-actor-testkit-typed" % "2.10.+" % Test
+// Akka (legacy) — check for latest version
+libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % "2.8.+"
+libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.8.+"
+libraryDependencies += "com.typesafe.akka" %% "akka-persistence-typed" % "2.8.+"
+libraryDependencies += "com.typesafe.akka" %% "akka-cluster-typed" % "2.8.+"
+libraryDependencies += "com.typesafe.akka" %% "akka-actor-testkit-typed" % "2.8.+" % Test
+
+// Apache Pekko (recommended for new projects) — check for latest version
+// libraryDependencies += "org.apache.pekko" %% "pekko-actor-typed" % "1.1.+"
+// libraryDependencies += "org.apache.pekko" %% "pekko-stream" % "1.1.+"
+// libraryDependencies += "org.apache.pekko" %% "pekko-persistence-typed" % "1.1.+"
+// libraryDependencies += "org.apache.pekko" %% "pekko-cluster-typed" % "1.1.+"
+// libraryDependencies += "org.apache.pekko" %% "pekko-actor-testkit-typed" % "1.1.+" % Test
 ```
 
 ## Related Skills

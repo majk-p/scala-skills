@@ -193,13 +193,12 @@ Supervisors automatically cancel background fibers when the supervisor scope clo
 ```scala
 // ZIO
 val app: ZIO[Any, Nothing, Unit] =
-  Supervisor[IO].use { supervisor =>
-    for {
-      _ <- supervisor.supervise(backgroundTask1)
-      _ <- supervisor.supervise(backgroundTask2)
-      _ <- mainLogic  // when this completes, all supervised fibers cancel
-    } yield ()
-  }
+  for {
+    supervisor <- ZIO.acquireRelease(Supervisor[Nothing])(_.awaitAll)
+    _ <- supervisor.track(backgroundTask1).fork
+    _ <- supervisor.track(backgroundTask2).fork
+    _ <- mainLogic
+  } yield ()
 
 // Cats Effect
 val app: IO[Unit] =

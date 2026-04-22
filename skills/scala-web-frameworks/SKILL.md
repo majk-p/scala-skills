@@ -319,25 +319,25 @@ val endpoint = endpoint.get
 ```scala
 // Play Framework — check for latest version
 libraryDependencies ++= Seq(
-  "org.playframework" %% "play" % "latest.integration",
-  "org.playframework" %% "play-guice" % "latest.integration",
-  "org.playframework" %% "play-json" % "latest.integration"
+  "org.playframework" %% "play" % "3.0.+",
+  "org.playframework" %% "play-guice" % "3.0.+",
+  "org.playframework" %% "play-json" % "3.0.+"
 )
 
 // Tapir — check for latest version
 libraryDependencies ++= Seq(
-  "com.softwaremill.sttp.tapir" %% "tapir-core" % "latest.integration",
-  "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % "latest.integration",
-  "com.softwaremill.sttp.tapir" %% "tapir-netty-server" % "latest.integration",
-  "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % "latest.integration",
-  "io.circe" %% "circe-generic" % "latest.integration"
+  "com.softwaremill.sttp.tapir" %% "tapir-core" % "1.11.+",
+  "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % "1.11.+",
+  "com.softwaremill.sttp.tapir" %% "tapir-netty-server" % "1.11.+",
+  "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % "1.11.+",
+  "io.circe" %% "circe-generic" % "0.14.+"
 )
 
 // ZIO-HTTP — check for latest version
 libraryDependencies ++= Seq(
-  "dev.zio" %% "zio-http" % "latest.integration",
-  "dev.zio" %% "zio" % "latest.integration",
-  "dev.zio" %% "zio-json" % "latest.integration"
+  "dev.zio" %% "zio-http" % "3.0.+",
+  "dev.zio" %% "zio" % "2.1.+",
+  "dev.zio" %% "zio-json" % "0.7.+"
 )
 ```
 
