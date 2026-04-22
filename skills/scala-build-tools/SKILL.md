@@ -296,6 +296,7 @@ libraryDependencies ++= Seq(
 ## Related Skills
 
 - **scala-lang** — for Scala language fundamentals and syntax patterns
+- **scala-sbt** — sbt vs sbtn usage, server lifecycle, when to reload/restart after build file changes
 - **scala-code-quality** — for formatting, linting, and refactoring integration with sbt
 - **scala-code-generation** — for metaprogramming and macro-related build configuration
 
